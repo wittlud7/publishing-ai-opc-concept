@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%230058b8'/%3E%3Ctext x='20' y='27' font-size='23' text-anchor='middle' fill='white'%3EP%3C/text%3E%3C/svg%3E" />
+    <meta name="theme-color" content="#f6f7f4" />
+    <meta name="description" content="出版 AI 与 OPC 协作：个人产品规划与交互式方案原型" />
+    <title>出版 AI × OPC｜产品规划作品</title>
+    <style>
+      :root {
+        --bg: #f7f8fa;
+        --paper: #ffffff;
+        --tint: #eef5fc;
+        --ink: #16304e;
+        --muted: #61758e;
+        --soft: #95a7ba;
+        --line: #d7e1ec;
+        --accent: #0058b8;
+        --accent-2: #e5f0fb;
+        --lime: #98d808;
+        --lime-pale: #f1f8d8;
+        --warm: #b76f4d;
+        --dark: #10345f;
+        --display: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+        --mono: "DM Mono", "Cascadia Mono", "Microsoft YaHei", monospace;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; overflow: hidden; color: var(--ink); background: var(--bg); font-family: var(--display); -webkit-font-smoothing: antialiased; }
+      ::selection { color: #fff; background: var(--accent); }
+      a { color: inherit; text-decoration: none; }
+      button, input { font: inherit; }
+      button { cursor: pointer; }
+
+      .deck { height: 100svh; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: thin; scrollbar-color: var(--accent) transparent; }
+      .slide { position: relative; min-height: 100svh; padding: 108px clamp(24px, 6vw, 92px) 45px; scroll-snap-align: start; scroll-snap-stop: always; }
+      .slide:nth-child(even) { background: var(--tint); }
+      .slide-inner { width: min(1240px, 100%); min-height: calc(100svh - 153px); margin: 0 auto; display: flex; flex-direction: column; justify-content: center; }
+      .slide-kicker { display: flex; align-items: center; gap: 10px; margin: 0 0 22px; color: var(--accent); font: 600 11px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+      .slide-kicker::before { content: ""; width: 26px; height: 2px; background: var(--accent); }
+      .slide-title { max-width: 800px; margin: 0; color: var(--ink); font: 700 clamp(34px, 4.5vw, 64px)/1.13 var(--display); letter-spacing: -.075em; }
+      .slide-title em { color: var(--accent); font-style: normal; }
+      .slide-lede { max-width: 650px; margin: 20px 0 0; color: #52637a; font-size: 17px; line-height: 1.85; }
+      .slide-head { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .7fr); gap: 48px; align-items: end; margin-bottom: 38px; }
+      .slide-head .slide-lede { margin: 0 0 4px; font-size: 15px; }
+      .slide-number { position: absolute; top: 108px; right: clamp(24px, 6vw, 92px); color: var(--soft); font: 11px var(--mono); }
+      .slide-number strong { color: var(--accent); font-weight: 500; }
+
+      .site-header { position: fixed; z-index: 20; top: 0; left: 0; right: 0; height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 0 clamp(24px, 6vw, 92px); border-bottom: 1px solid rgba(21,37,35,.12); background: rgba(246,247,244,.9); backdrop-filter: blur(14px); }
+      .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); font: 700 12px var(--mono); letter-spacing: .08em; }
+      .brand-mark { display: inline-flex; align-items: end; gap: 2px; height: 17px; }
+      .brand-mark i { display: block; width: 4px; background: var(--accent); }
+      .brand-mark i:nth-child(1) { height: 8px; opacity: .45; }.brand-mark i:nth-child(2) { height: 12px; opacity: .7; }.brand-mark i:nth-child(3) { height: 17px; background: var(--lime); }
+      .brand em { color: var(--accent); font-style: normal; }
+      .header-status { color: var(--muted); font: 10px var(--mono); letter-spacing: .08em; }
+      .header-status b { color: var(--accent); font-weight: 600; }
+      .slide-nav { position: fixed; z-index: 20; top: 50%; right: 26px; display: flex; flex-direction: column; gap: 9px; transform: translateY(-50%); }
+      .slide-nav button { width: 7px; height: 7px; padding: 0; border: 0; border-radius: 50%; background: #c0ccdc; transition: transform .2s ease, background .2s ease; }
+      .slide-nav button:hover, .slide-nav button:focus-visible { background: var(--accent); transform: scale(1.7); }
+      .slide-nav button.active { background: var(--accent); transform: scale(1.6); }
+
+      .cover-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(420px, .88fr); gap: clamp(44px, 8vw, 118px); align-items: center; }
+      .cover-copy h1 { max-width: 670px; margin: 0; font: 700 clamp(49px, 6.5vw, 92px)/1.02 var(--display); letter-spacing: -.1em; }
+      .cover-copy h1 span { color: var(--accent); }
+      .cover-copy .slide-lede { max-width: 560px; margin-top: 28px; font-size: 18px; }
+      .cover-meta { display: flex; flex-wrap: wrap; gap: 8px 25px; margin-top: 34px; color: var(--muted); font: 11px var(--mono); }
+      .cover-meta span { display: inline-flex; align-items: center; gap: 8px; }.cover-meta span::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+      .cover-graphic { position: relative; min-height: 495px; padding: 30px; border: 1px solid var(--line); background: var(--paper); }
+      .cover-graphic::before { content: "AI APPLICATION PATH"; position: absolute; top: 27px; left: 30px; color: var(--soft); font: 10px var(--mono); letter-spacing: .12em; }
+      .cover-axis { position: absolute; top: 84px; bottom: 68px; left: 50%; width: 1px; background: var(--line); }
+      .cover-axis::after { content: ""; position: absolute; left: -3px; bottom: 0; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+      .cover-node { position: absolute; width: 205px; padding: 17px 18px; border: 1px solid var(--line); background: var(--paper); box-shadow: 7px 7px 0 var(--accent-2); }
+      .cover-node small { display: block; color: var(--accent); font: 10px var(--mono); }.cover-node strong { display: block; margin-top: 11px; font-size: 18px; }.cover-node p { margin: 6px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+      .cover-node.one { top: 111px; left: 25px; }.cover-node.two { top: 220px; right: 25px; }.cover-node.three { bottom: 75px; left: 25px; }
+      .cover-core { position: absolute; right: 30px; bottom: 75px; width: 205px; padding: 20px 18px; color: #fff; background: var(--dark); }.cover-core small { color: #b8cbef; font: 10px var(--mono); }.cover-core strong { display: block; margin-top: 10px; color: var(--lime); font-size: 22px; }.cover-core p { margin: 6px 0 0; color: #d6e2f4; font-size: 12px; }
+      .cover-legend { position: absolute; right: 30px; bottom: 27px; left: 30px; display: flex; justify-content: space-between; padding-top: 14px; border-top: 1px solid var(--line); color: var(--soft); font: 10px var(--mono); }.cover-legend b { color: var(--accent); font-weight: 500; }
+      .cover-ask { max-width: 700px; margin-top: 28px; padding: 16px 18px; border-left: 3px solid var(--lime); background: var(--lime-pale); }.cover-ask span { display: block; color: var(--accent); font: 600 10px var(--mono); letter-spacing: .08em; }.cover-ask strong { display: block; margin-top: 7px; color: var(--ink); font-size: 17px; line-height: 1.5; }.cover-ask small { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+
+      .entry-grid { display: grid; grid-template-columns: 1.05fr 1.95fr; gap: 22px; }
+      .entry-statement { display: flex; flex-direction: column; justify-content: space-between; min-height: 410px; padding: 28px; color: #fff; background: var(--dark); }
+      .entry-statement small, .mini-label { color: #b8cbef; font: 10px var(--mono); letter-spacing: .1em; }.entry-statement strong { max-width: 390px; margin-top: auto; font-size: clamp(30px, 3.4vw, 48px); line-height: 1.12; letter-spacing: -.07em; }.entry-statement p { max-width: 360px; margin: 17px 0 0; color: #d6e2f4; font-size: 14px; line-height: 1.7; }
+      .entry-cards { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+      .entry-card { min-height: 205px; padding: 22px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--paper); }.entry-card span { color: var(--accent); font: 10px var(--mono); }.entry-card strong { display: block; margin-top: 44px; font-size: 18px; }.entry-card p { margin: 9px 0 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
+      .entry-foot { grid-column: 1 / -1; display: flex; align-items: center; min-height: 100px; padding: 20px 22px; color: var(--ink); background: var(--accent-2); }.entry-foot strong { font-size: 17px; line-height: 1.6; }
+
+      .stage-tabs { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }.stage-tab { min-height: 110px; padding: 18px 20px; border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--muted); background: var(--paper); text-align: left; }.stage-tab:hover, .stage-tab:focus-visible { color: var(--ink); background: #eef3fb; }.stage-tab.active { color: #fff; background: var(--accent); }.stage-tab small { display: block; font: 10px var(--mono); }.stage-tab strong { display: block; margin-top: 18px; font-size: 18px; }.stage-detail { display: grid; grid-template-columns: 1.1fr repeat(3, 1fr); min-height: 215px; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); }.stage-detail > div { padding: 22px; border-right: 1px solid var(--line); background: var(--paper); }.stage-detail > div:first-child { background: #edf3fb; }.stage-detail label, .stage-detail span { color: var(--accent); font: 10px var(--mono); }.stage-detail h3 { margin: 29px 0 9px; color: var(--accent); font-size: 28px; }.stage-detail p { margin: 0; color: #586a83; font-size: 14px; line-height: 1.7; }.stage-detail strong { display: block; margin-top: 26px; font-size: 16px; }.stage-detail small { display: block; margin-top: 7px; color: var(--muted); font-size: 12px; line-height: 1.55; }.stage-note { display: grid; grid-template-columns: 150px 1fr; gap: 20px; align-items: baseline; margin-top: 18px; padding: 16px 20px; border-left: 3px solid var(--warm); background: #f7eee9; }.stage-note span { color: var(--warm); font: 10px var(--mono); }.stage-note strong { font-size: 14px; line-height: 1.65; }
+
+      .data-line { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }.data-step { position: relative; min-height: 245px; padding: 22px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--paper); }.data-step::after { content: "→"; position: absolute; top: 20px; right: 15px; color: var(--accent); font: 18px var(--mono); }.data-step:last-child::after { content: ""; }.data-step span { color: var(--accent); font: 10px var(--mono); }.data-step strong { display: block; margin-top: 52px; font-size: 20px; }.data-step p { margin: 10px 0 0; color: var(--muted); font-size: 13px; line-height: 1.65; }.data-step b { display: block; margin-top: 22px; color: var(--accent); font-size: 12px; font-weight: 600; }.source-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }.source-box { padding: 18px 20px; border: 1px solid var(--line); background: var(--paper); }.source-box span { color: var(--accent); font: 10px var(--mono); }.source-box strong { display: block; margin-top: 9px; font-size: 15px; }.source-box p { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+
+      .process-track { display: grid; grid-template-columns: repeat(8, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }.process-step { min-height: 190px; padding: 18px 15px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--paper); }.process-step:last-child { background: var(--lime-pale); }.process-step span { color: var(--accent); font: 10px var(--mono); }.process-step strong { display: block; margin-top: 42px; font-size: 16px; line-height: 1.45; }.process-step p { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }.process-note { display: flex; justify-content: space-between; gap: 22px; align-items: center; margin-top: 18px; padding: 17px 20px; color: #fff; background: var(--dark); }.process-note span { color: #b8cbef; font: 10px var(--mono); }.process-note strong { font-size: 15px; line-height: 1.6; }
+
+      .reference-grid { display: grid; grid-template-columns: .85fr 1.15fr; gap: 22px; }.reference-copy { padding: 28px; border: 1px solid var(--line); background: var(--dark); color: #fff; }.reference-copy small { color: #b8cbef; font: 10px var(--mono); }.reference-copy h3 { margin: 55px 0 12px; color: #fff; font-size: 33px; letter-spacing: -.06em; }.reference-copy p { margin: 0; color: #d6e2f4; font-size: 14px; line-height: 1.75; }.button { display: inline-flex; align-items: center; justify-content: space-between; gap: 25px; min-height: 42px; margin-top: 28px; padding: 0 14px; border: 1px solid transparent; font-size: 13px; }.button-primary { color: #fff; background: var(--accent); }.button-primary:hover, .button-primary:focus-visible { background: #00458f; }.button-light { color: var(--ink); background: var(--paper); }.button-light:hover, .button-light:focus-visible { color: #fff; background: var(--accent); }.reference-modules { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }.module { min-height: 135px; padding: 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--paper); }.module small { color: var(--accent); font: 10px var(--mono); }.module strong { display: block; margin-top: 30px; font-size: 16px; }.reference-source { margin-top: 14px; color: var(--muted); font: 11px/1.6 var(--mono); }.reference-source a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+
+      .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }.compare-card { padding: 24px; border: 1px solid var(--line); background: var(--paper); }.compare-card.target { border: 2px solid var(--accent); background: var(--accent-2); }.compare-card > span { color: var(--muted); font: 10px var(--mono); }.compare-card.target > span { color: var(--accent); }.compare-card h3 { margin: 20px 0 22px; font-size: 25px; }.compare-list { display: grid; gap: 0; border-top: 1px solid var(--line); }.compare-row { display: grid; grid-template-columns: 110px 1fr; gap: 15px; padding: 14px 0; border-bottom: 1px solid var(--line); }.compare-row b { color: var(--muted); font-size: 12px; font-weight: 500; }.compare-row span { color: #52637a; font-size: 14px; line-height: 1.55; }.compare-card.target .compare-row span { color: var(--ink); }.judgment { margin-top: 18px; padding: 17px 20px; color: #fff; background: var(--dark); }.judgment span { color: #b8cbef; font: 10px var(--mono); }.judgment strong { display: block; margin-top: 8px; font-size: 16px; line-height: 1.6; }
+
+      .pilot-top { display: grid; grid-template-columns: 1.3fr 1fr 1fr; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }.pilot-stat { min-height: 150px; padding: 21px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--paper); }.pilot-stat:first-child { background: var(--accent-2); }.pilot-stat span { color: var(--accent); font: 10px var(--mono); }.pilot-stat strong { display: block; margin-top: 32px; font-size: 21px; }.pilot-stat small { display: block; margin-top: 7px; color: var(--muted); font-size: 12px; line-height: 1.55; }.pilot-steps { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 18px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }.pilot-step { min-height: 185px; padding: 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--paper); }.pilot-step span { color: var(--accent); font: 10px var(--mono); }.pilot-step strong { display: block; margin-top: 33px; font-size: 17px; }.pilot-step p { margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+      .decision-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }.decision-card { min-height: 145px; padding: 20px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--paper); }.decision-card.highlight { background: var(--accent-2); }.decision-card span { color: var(--accent); font: 10px var(--mono); }.decision-card strong { display: block; margin-top: 25px; font-size: 19px; }.decision-card small { display: block; margin-top: 7px; color: var(--muted); font-size: 12px; line-height: 1.5; }.decision-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }.formula, .risk-gate { padding: 19px 21px; border: 1px solid var(--line); background: var(--paper); }.formula span, .risk-gate span { color: var(--accent); font: 10px var(--mono); }.formula strong { display: block; margin-top: 17px; font-size: 23px; }.formula p { margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }.gate-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 17px; }.gate-list b { padding: 8px 10px; color: var(--ink); background: var(--accent-2); font-size: 12px; font-weight: 600; }
+
+      .bmc-grid { display: grid; grid-template-columns: 1.05fr 1fr 1.2fr 1fr 1.05fr; grid-template-rows: minmax(145px, auto) minmax(145px, auto) minmax(105px, auto); border-top: 1px solid var(--line); border-left: 1px solid var(--line); background: var(--paper); }.bmc-card { min-width: 0; padding: 16px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--paper); }.bmc-card > span { color: var(--accent); font: 10px var(--mono); }.bmc-card strong { display: block; margin-top: 26px; font-size: 14px; line-height: 1.45; }.bmc-card p { margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }.bmc-partners { grid-column: 1; grid-row: 1 / 3; }.bmc-activities { grid-column: 2; grid-row: 1; }.bmc-resources { grid-column: 2; grid-row: 2; }.bmc-value { grid-column: 3; grid-row: 1 / 3; background: var(--accent-2); }.bmc-value strong { font-size: 20px; }.bmc-value em { display: inline-block; margin-top: 22px; padding: 7px 9px; color: var(--dark); background: var(--lime); font: 11px var(--mono); font-style: normal; }.bmc-relationships { grid-column: 4; grid-row: 1; }.bmc-channels { grid-column: 4; grid-row: 2; }.bmc-segments { grid-column: 5; grid-row: 1 / 3; }.bmc-costs { grid-column: 1 / 3; grid-row: 3; background: #f0f4fb; }.bmc-revenue { grid-column: 3 / 6; grid-row: 3; background: #f0f4fb; }
+
+      .finance-layout { display: grid; grid-template-columns: 1fr 1.45fr; gap: 18px; }.finance-controls, .finance-results { padding: 20px; border: 1px solid var(--line); background: var(--paper); }.finance-head { display: flex; justify-content: space-between; gap: 15px; align-items: center; }.finance-head > span, .finance-results > span { color: var(--accent); font: 10px var(--mono); }.scenarios { display: flex; gap: 5px; }.scenarios button { padding: 7px 9px; border: 1px solid var(--line); color: var(--muted); background: transparent; font-size: 11px; }.scenarios button.active, .scenarios button:hover, .scenarios button:focus-visible { color: #fff; border-color: var(--accent); background: var(--accent); }.controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px 18px; margin-top: 19px; }.control label { display: flex; justify-content: space-between; gap: 8px; color: #586a83; font-size: 11px; }.control output { color: var(--ink); font: 600 11px var(--mono); }.control input { width: 100%; min-width: 0; margin: 7px 0 0; accent-color: var(--accent); }.control input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }.finance-results > span { display: block; }.result-head { display: flex; justify-content: space-between; gap: 15px; align-items: baseline; margin-top: 7px; }.result-head strong { color: var(--accent); font-size: 12px; }.result-grid { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 20px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }.result-card { min-height: 115px; padding: 14px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }.result-card.future { background: var(--lime-pale); }.result-card span { color: var(--muted); font: 10px var(--mono); }.result-card strong { display: block; margin-top: 20px; font-size: 22px; }.result-card.future strong { color: var(--accent); }.result-card small { display: block; margin-top: 5px; color: var(--muted); font-size: 10px; line-height: 1.4; }.finance-bars { display: grid; gap: 9px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }.finance-bar { display: grid; grid-template-columns: 65px 1fr 61px; gap: 8px; align-items: center; color: var(--muted); font: 10px var(--mono); }.finance-bar i { height: 8px; overflow: hidden; background: #e5ebf5; }.finance-bar b { display: block; width: 0; height: 100%; background: var(--accent); transition: width .25s ease; }.finance-bar:nth-child(2) b { background: var(--lime); }.finance-bar:nth-child(3) b { background: var(--dark); }.finance-bar strong { color: var(--ink); text-align: right; font-weight: 600; }.finance-formula { margin-top: 15px; color: var(--muted); font: 10px/1.6 var(--mono); }.finance-formula b { color: var(--ink); font-weight: 500; }.assumption { margin-top: 13px; color: var(--muted); font: 10px/1.6 var(--mono); }
+      .pilot-note { display: flex; justify-content: space-between; gap: 22px; align-items: center; margin-top: 18px; padding: 17px 20px; color: #fff; background: var(--dark); }.pilot-note span { color: #b8cbef; font: 10px var(--mono); }.pilot-note strong { font-size: 15px; line-height: 1.6; }
+
+      .final-slide { color: #fff; background: var(--dark) !important; }.final-slide .slide-inner { display: grid; grid-template-columns: .85fr 1.15fr; gap: 80px; align-items: center; }.final-slide .slide-kicker { color: #b8cbef; }.final-slide .slide-kicker::before { background: #b8cbef; }.final-slide .slide-title { color: #fff; }.final-slide .slide-title em { color: var(--lime); }.final-slide .slide-lede { color: #d6e2f4; }.final-core { padding: 31px; border: 1px solid rgba(184,203,239,.3); background: rgba(255,255,255,.05); }.final-core small { color: #b8cbef; font: 10px var(--mono); }.final-core strong { display: block; margin-top: 24px; color: #fff; font-size: clamp(35px, 4vw, 58px); line-height: 1.1; letter-spacing: -.08em; }.final-core p { margin: 20px 0 0; color: #d6e2f4; font-size: 15px; line-height: 1.8; }.support-box { margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(184,203,239,.3); }.support-box span { color: #b8cbef; font: 10px var(--mono); }.support-list { display: grid; gap: 8px; margin-top: 13px; }.support-list b { display: grid; grid-template-columns: 25px 1fr; gap: 9px; color: #fff; font-size: 14px; font-weight: 500; }.support-list b::before { content: attr(data-no); color: var(--lime); font: 11px var(--mono); }
+
+      /* Executive reading scale: larger type, wider content, deliberate wrapping. */
+      .slide-inner { width: min(1440px, 100%); }
+      .slide-kicker { margin-bottom: 24px; font-size: 12px; }
+      .slide-title { max-width: 920px; font-size: clamp(40px, 4.5vw, 72px); text-wrap: balance; }
+      .slide-lede { max-width: 760px; font-size: 18px; line-height: 1.72; text-wrap: balance; }
+      .slide-head { grid-template-columns: minmax(0, 1.18fr) minmax(330px, .72fr); gap: 56px; margin-bottom: 44px; }
+      .slide-head .slide-lede { font-size: 17px; line-height: 1.72; }
+      .slide-number { font-size: 12px; }
+      .brand { font-size: 13px; }
+      .header-status { font-size: 11px; }
+      .entry-grid { grid-template-columns: 1.2fr 1.8fr; }
+
+      .slide-cover .cover-grid { grid-template-columns: minmax(0, 1.08fr) minmax(500px, .92fr); gap: 72px; }
+      .slide-cover .cover-copy h1 { max-width: 920px; font-size: clamp(58px, 6vw, 96px); line-height: 1.04; }
+      .slide-cover .cover-copy .slide-lede { max-width: 700px; margin-top: 32px; font-size: 20px; line-height: 1.72; }
+      .slide-cover .cover-meta { margin-top: 38px; font-size: 12px; }
+      .slide-cover .cover-graphic { min-height: 540px; padding: 36px; }
+      .slide-cover .cover-graphic::before { top: 31px; left: 36px; font-size: 11px; }
+      .slide-cover .cover-node { width: 255px; padding: 21px 22px; }
+      .slide-cover .cover-node small { font-size: 11px; }
+      .slide-cover .cover-node strong { margin-top: 14px; font-size: 22px; }
+      .slide-cover .cover-node p { margin-top: 8px; font-size: 14px; line-height: 1.6; }
+      .slide-cover .cover-node.one { top: 122px; left: 36px; }
+      .slide-cover .cover-node.two { top: 242px; right: 36px; }
+      .slide-cover .cover-node.three { bottom: 82px; left: 36px; }
+      .slide-cover .cover-core { right: 36px; bottom: 82px; width: 255px; padding: 24px 22px; }
+      .slide-cover .cover-core small { font-size: 11px; }
+      .slide-cover .cover-core strong { margin-top: 13px; font-size: 27px; }
+      .slide-cover .cover-core p { margin-top: 8px; font-size: 14px; }
+      .slide-cover .cover-legend { right: 36px; bottom: 31px; left: 36px; padding-top: 16px; font-size: 11px; }
+
+      #entry .entry-statement { min-height: 440px; padding: 34px; }
+      #entry .entry-statement small, #entry .mini-label { font-size: 11px; }
+      #entry .entry-statement strong { max-width: 480px; font-size: clamp(38px, 3.8vw, 56px); }
+      #entry .entry-statement p { max-width: 430px; font-size: 16px; line-height: 1.75; }
+      #entry .entry-card { min-height: 220px; padding: 26px; }
+      #entry .entry-card span { font-size: 11px; }
+      #entry .entry-card strong { margin-top: 48px; font-size: 22px; }
+      #entry .entry-card p { font-size: 15px; line-height: 1.7; }
+      #entry .entry-foot { min-height: 116px; padding: 24px 26px; }
+      #entry .entry-foot strong { font-size: 20px; }
+
+      #ai-stages .stage-tab { min-height: 130px; padding: 22px 24px; }
+      #ai-stages .stage-tab small, #ai-stages .stage-detail label, #ai-stages .stage-detail span { font-size: 11px; }
+      #ai-stages .stage-tab strong { margin-top: 22px; font-size: 22px; }
+      #ai-stages .stage-detail { min-height: 260px; }
+      #ai-stages .stage-detail > div { padding: 27px; }
+      #ai-stages .stage-detail h3 { margin: 34px 0 12px; font-size: 36px; }
+      #ai-stages .stage-detail p { font-size: 16px; line-height: 1.75; }
+      #ai-stages .stage-detail strong { margin-top: 30px; font-size: 18px; }
+      #ai-stages .stage-detail small { font-size: 14px; line-height: 1.6; }
+      #ai-stages .stage-note { margin-top: 22px; padding: 20px 24px; }
+      #ai-stages .stage-note span { font-size: 11px; }
+      #ai-stages .stage-note strong { font-size: 16px; }
+
+      #data-assets .data-step { min-height: 275px; padding: 27px; }
+      #data-assets .data-step span, #data-assets .source-box span { font-size: 11px; }
+      #data-assets .data-step strong { margin-top: 58px; font-size: 24px; }
+      #data-assets .data-step p, #data-assets .source-box p { font-size: 15px; line-height: 1.7; }
+      #data-assets .data-step b { margin-top: 25px; font-size: 14px; }
+      #data-assets .source-strip { gap: 22px; margin-top: 22px; }
+      #data-assets .source-box { padding: 22px 24px; }
+      #data-assets .source-box strong { margin-top: 11px; font-size: 18px; }
+
+      #full-flow .process-step { min-height: 220px; padding: 22px 18px; }
+      #full-flow .process-step span { font-size: 11px; }
+      #full-flow .process-step strong { margin-top: 50px; font-size: 18px; }
+      #full-flow .process-step p { margin-top: 10px; font-size: 14px; line-height: 1.65; }
+      #full-flow .process-note { margin-top: 22px; padding: 20px 24px; }
+      #full-flow .process-note span { font-size: 11px; }
+      #full-flow .process-note strong { font-size: 17px; }
+
+      #bookworld .reference-copy { padding: 34px; }
+      #bookworld .reference-copy small, #bookworld .module small { font-size: 11px; }
+      #bookworld .reference-copy h3 { margin: 62px 0 16px; font-size: 40px; }
+      #bookworld .reference-copy p { font-size: 16px; line-height: 1.8; }
+      #bookworld .button { min-height: 48px; margin-top: 32px; padding: 0 17px; font-size: 15px; }
+      #bookworld .reference-source { font-size: 12px; }
+      #bookworld .module { min-height: 160px; padding: 22px; }
+      #bookworld .module strong { margin-top: 38px; font-size: 20px; }
+
+      #positioning .compare-card { padding: 30px; }
+      #positioning .compare-card > span { font-size: 11px; }
+      #positioning .compare-card h3 { margin: 24px 0 26px; font-size: 30px; }
+      #positioning .compare-row { grid-template-columns: 120px 1fr; gap: 18px; padding: 17px 0; }
+      #positioning .compare-row b { font-size: 14px; }
+      #positioning .compare-row span { font-size: 16px; line-height: 1.65; }
+      #positioning .judgment { margin-top: 22px; padding: 20px 24px; }
+      #positioning .judgment span { font-size: 11px; }
+      #positioning .judgment strong { font-size: 18px; }
+
+      #validation .pilot-stat { min-height: 170px; padding: 26px; }
+      #validation .pilot-stat span, #validation .pilot-step span { font-size: 11px; }
+      #validation .pilot-stat strong { margin-top: 38px; font-size: 25px; }
+      #validation .pilot-stat small { font-size: 14px; line-height: 1.65; }
+      #validation .pilot-steps { margin-top: 22px; }
+      #validation .pilot-step { min-height: 220px; padding: 22px; }
+      #validation .pilot-step strong { margin-top: 40px; font-size: 20px; }
+      #validation .pilot-step p { font-size: 15px; line-height: 1.7; }
+
+      #decision .decision-card { min-height: 165px; padding: 25px; }
+      #decision .decision-card span, #decision .formula span, #decision .risk-gate span { font-size: 11px; }
+      #decision .decision-card strong { margin-top: 30px; font-size: 22px; }
+      #decision .decision-card small { font-size: 14px; line-height: 1.6; }
+      #decision .decision-bottom { margin-top: 22px; gap: 22px; }
+      #decision .formula, #decision .risk-gate { padding: 23px 25px; }
+      #decision .formula strong { margin-top: 20px; font-size: 27px; }
+      #decision .formula p { font-size: 15px; }
+      #decision .gate-list { margin-top: 20px; }
+      #decision .gate-list b { padding: 9px 12px; font-size: 13px; }
+
+      #canvas .bmc-grid { grid-template-rows: minmax(170px, auto) minmax(170px, auto) minmax(125px, auto); }
+      #canvas .bmc-card { padding: 21px; }
+      #canvas .bmc-card > span { font-size: 11px; }
+      #canvas .bmc-card strong { margin-top: 31px; font-size: 16px; }
+      #canvas .bmc-card p { font-size: 13px; line-height: 1.6; }
+      #canvas .bmc-value strong { font-size: 23px; }
+      #canvas .bmc-value em { margin-top: 27px; padding: 8px 11px; font-size: 12px; }
+
+      #finance .finance-layout { gap: 22px; }
+      #finance .finance-controls, #finance .finance-results { padding: 25px; }
+      #finance .finance-head > span, #finance .finance-results > span { font-size: 11px; }
+      #finance .scenarios { gap: 7px; }
+      #finance .scenarios button { padding: 8px 11px; font-size: 12px; }
+      #finance .controls-grid { gap: 16px 22px; margin-top: 22px; }
+      #finance .control label { font-size: 13px; }
+      #finance .control output { font-size: 13px; }
+      #finance .result-grid { margin-top: 24px; }
+      #finance .result-card { min-height: 135px; padding: 17px; }
+      #finance .result-card span { font-size: 11px; }
+      #finance .result-card strong { margin-top: 24px; font-size: 26px; }
+      #finance .result-card small { font-size: 12px; line-height: 1.5; }
+      #finance .finance-table { display: grid; margin-top: 22px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); background: var(--paper); }
+      #finance .finance-table-row { display: grid; grid-template-columns: 1.35fr repeat(3, 1fr); min-height: 37px; }
+      #finance .finance-table-row > * { display: flex; align-items: center; min-width: 0; padding: 9px 11px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+      #finance .finance-table-row > span { color: var(--muted); font-size: 12px; }
+      #finance .finance-table-row > b { justify-content: flex-end; color: var(--ink); font: 600 12px var(--mono); text-align: right; }
+      #finance .finance-table-row.header { background: var(--tint); }
+      #finance .finance-table-row.header > span, #finance .finance-table-row.header > b { color: var(--accent); font: 600 11px var(--mono); }
+      #finance .finance-table-row.total { background: var(--accent-2); }
+      #finance .finance-table-row.total > span, #finance .finance-table-row.total > b { color: var(--accent); font-weight: 700; }
+      #finance .finance-bar { grid-template-columns: 72px 1fr 72px; font-size: 11px; }
+      #finance .finance-formula, #finance .assumption { font-size: 11px; }
+
+      #support .slide-title { font-size: clamp(44px, 4.8vw, 76px); }
+      #support .slide-lede { font-size: 20px; }
+      #support .final-core { padding: 36px; }
+      #support .final-core small, #support .support-box span { font-size: 11px; }
+      #support .final-core strong { margin-top: 28px; font-size: clamp(42px, 4.5vw, 66px); }
+      #support .final-core p { margin-top: 24px; font-size: 18px; line-height: 1.85; }
+      #support .support-box { margin-top: 30px; padding-top: 24px; }
+      #support .support-list { gap: 11px; margin-top: 16px; }
+      #support .support-list b { grid-template-columns: 29px 1fr; gap: 11px; font-size: 16px; }
+      #support .support-list b::before { font-size: 12px; }
+      #support .support-list b.no-go { color: #b8cbef; }
+      #support .support-list b.no-go::before { color: #f3b36b; }
+
+      @media (min-width: 1400px) {
+        .slide-cover .cover-copy h1 span { white-space: nowrap; }
+        .slide-cover .cover-node.two { top: 155px; }
+        .slide-cover .cover-core { bottom: 60px; }
+        #support .slide-inner { grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: 72px; }
+      }
+
+      @media (max-width: 1100px) {
+        .cover-grid { grid-template-columns: 1fr .9fr; gap: 35px; }.cover-graphic { min-height: 425px; }.cover-node, .cover-core { width: 175px; }.process-step { padding: 15px 11px; }.process-step strong { font-size: 14px; }.process-step p { font-size: 11px; }.bmc-card { padding: 13px; }.bmc-card strong { font-size: 13px; }.bmc-card p { font-size: 10px; }
+      }
+      @media (max-width: 820px) {
+        body { overflow: auto; }.deck { height: auto; overflow: visible; scroll-snap-type: none; }.slide { min-height: auto; padding: 100px 24px 65px; scroll-snap-align: none; }.slide-inner { min-height: 0; }.slide-number { top: 92px; right: 24px; }.site-header { height: 64px; }.header-status { display: none; }.slide-nav { display: none; }.slide-head { display: block; margin-bottom: 30px; }.slide-head .slide-lede { margin-top: 16px; }.cover-grid, .final-slide .slide-inner, .reference-grid, .finance-layout { grid-template-columns: 1fr; }.cover-graphic { min-height: 410px; }.entry-grid { grid-template-columns: 1fr; }.entry-statement { min-height: 270px; }.entry-cards { grid-template-columns: repeat(2, 1fr); }.entry-foot { grid-column: 1 / -1; }.stage-tabs { grid-template-columns: 1fr; }.stage-detail { grid-template-columns: 1fr; }.stage-detail > div { border-top: 1px solid var(--line); }.stage-detail > div:first-child { border-top: 0; }.stage-note { grid-template-columns: 1fr; gap: 8px; }.data-line { grid-template-columns: repeat(2, 1fr); }.source-strip { grid-template-columns: 1fr; }.process-track { grid-template-columns: repeat(4, 1fr); }.process-step:nth-child(n+5) { border-top: 1px solid var(--line); }.reference-modules { grid-template-columns: repeat(2, 1fr); }.compare-grid, .decision-bottom { grid-template-columns: 1fr; }.pilot-top { grid-template-columns: 1fr 1fr; }.pilot-stat:first-child { grid-column: 1 / -1; }.pilot-steps { grid-template-columns: repeat(2, 1fr); }.decision-grid { grid-template-columns: repeat(2, 1fr); }.bmc-grid { grid-template-columns: 1fr; grid-template-rows: none; }.bmc-partners, .bmc-activities, .bmc-resources, .bmc-value, .bmc-relationships, .bmc-channels, .bmc-segments, .bmc-costs, .bmc-revenue { grid-column: 1; grid-row: auto; }.controls-grid { gap: 12px; }.result-grid { grid-template-columns: repeat(2, 1fr); }.final-slide .slide-inner { gap: 32px; }.final-core { padding: 24px; }
+      }
+      @media (max-width: 520px) {
+        .cover-copy h1 { font-size: clamp(45px, 14vw, 66px); }.cover-graphic { min-height: 470px; padding: 20px; }.cover-node, .cover-core { width: 150px; }.cover-node.one { left: 12px; }.cover-node.two { right: 12px; }.cover-node.three { left: 12px; bottom: 70px; }.cover-core { right: 12px; bottom: 70px; }.cover-legend { right: 20px; left: 20px; }.entry-cards, .data-line, .pilot-top, .pilot-steps, .decision-grid { grid-template-columns: 1fr; }.pilot-stat:first-child { grid-column: auto; }.process-track { grid-template-columns: repeat(2, 1fr); }.process-step:nth-child(n+3) { border-top: 1px solid var(--line); }.reference-modules { grid-template-columns: 1fr 1fr; }.controls-grid { grid-template-columns: 1fr; }.finance-head { align-items: flex-start; flex-direction: column; }.result-card strong { font-size: 20px; }.final-core strong { font-size: 36px; }.cover-ask { margin-top: 22px; }.pilot-note { align-items: flex-start; flex-direction: column; gap: 8px; }
+      }
+      @media (min-width: 821px) and (max-width: 1399px) {
+        .slide-cover .cover-grid { grid-template-columns: minmax(0, 1fr) minmax(420px, .85fr); gap: 40px; }
+        .slide-cover .cover-copy h1 { max-width: none; font-size: clamp(56px, 5.7vw, 84px); }
+        .slide-cover .cover-copy h1 span { white-space: nowrap; }
+        .slide-cover .cover-graphic { min-height: 500px; }
+        .slide-cover .cover-node { width: 220px; padding: 18px 19px; }
+        .slide-cover .cover-core { right: 30px; bottom: 60px; width: 220px; padding: 21px 19px; }
+        .slide-cover .cover-node.one { top: 112px; left: 30px; }
+        .slide-cover .cover-node.two { top: 135px; right: 30px; }
+        .slide-cover .cover-node.three { bottom: 69px; left: 30px; }
+        .slide-cover .cover-legend { right: 30px; bottom: 26px; left: 30px; }
+        #support .slide-inner { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 50px; }
+      }
+      @media (max-width: 820px) {
+        .slide-title { font-size: clamp(34px, 8vw, 52px); }
+        .slide-lede { font-size: 16px; }
+        .slide-cover .cover-grid { grid-template-columns: 1fr; }
+        .slide-cover .cover-copy h1 span { white-space: normal; }
+      }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; }.slide-nav button, .finance-bar b { transition: none; } }
+
+      .portfolio-status { margin:22px 0 0; padding:10px 12px; border-left:3px solid var(--accent); color:var(--accent); background:var(--accent-2); font-size:13px; line-height:1.7; }
+      .portfolio-links { display:flex;flex-wrap:wrap;gap:12px;margin-top:16px;font-size:13px;font-weight:600; }
+      .portfolio-links a { border-bottom:1px solid var(--accent);padding-bottom:4px; }
+      @media(max-width:820px) { .portfolio-links {font-size:12px;} .portfolio-status {font-size:12px;} }
+
+      .slide-cover .cover-graphic { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:84px 24px 70px; align-content:center; }
+      .slide-cover .cover-node, .slide-cover .cover-core { position:static; width:auto; min-width:0; margin:0; padding:20px 18px; }
+      .slide-cover .cover-axis { display:none; }
+      .slide-cover .cover-node strong {font-size:21px;}
+      @media (max-width:520px) { .slide-cover .cover-graphic { grid-template-columns:1fr; padding:72px 20px 65px; } .slide-cover .cover-node, .slide-cover .cover-core {padding:18px;} }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#overview" aria-label="回到第一页"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>出版 AI <em>×</em> OPC</span></a>
+      <div class="header-status"><b id="progressNumber">01</b> / 12 · 个人规划原型</div>
+    </header>
+
+    <nav class="slide-nav" aria-label="页面进度">
+      <button class="active" data-slide="0" aria-label="第 1 页"></button><button data-slide="1" aria-label="第 2 页"></button><button data-slide="2" aria-label="第 3 页"></button><button data-slide="3" aria-label="第 4 页"></button><button data-slide="4" aria-label="第 5 页"></button><button data-slide="5" aria-label="第 6 页"></button><button data-slide="6" aria-label="第 7 页"></button><button data-slide="7" aria-label="第 8 页"></button><button data-slide="8" aria-label="第 9 页"></button><button data-slide="9" aria-label="第 10 页"></button><button data-slide="10" aria-label="第 11 页"></button><button data-slide="11" aria-label="第 12 页"></button>
+    </nav>
+
+    <main class="deck" id="deck">
+      <section class="slide slide-cover" id="overview">
+        <span class="slide-number"><strong>01</strong> / 12</span>
+        <div class="slide-inner">
+          <div class="cover-grid">
+            <div class="cover-copy">
+              <p class="slide-kicker">出版经营 AI 应用探索</p>
+              <h1>一个人 + AI，<br /><span>如何做好出版产品？</span></h1>
+              <p class="slide-lede">以经营 BI 为入口，规划选题、内容、审校、市场反馈与经营复盘的协作链路。OPC 在此指一人主导、AI 辅助的产品工作单元；本页展示方案设计，尚未接入完整出版生产流程。</p>
+              <div class="cover-ask"><span>验证方案</span><strong>90 天 · 1 个试点产品 · 1 名结果负责人</strong><small>首阶段只读接入数据；是否扩大，等真实证据和阶段门评审。</small></div>
+              <p class="portfolio-status">个人产品规划作品 · 非已上线平台 · 测算参数全部虚构</p><div class="portfolio-links"><a href="https://wittlud7.github.io/ecommerce-bi-agent-demo/" target="_blank" rel="noopener noreferrer">查看已交付 BI / Agent 演示 ↗</a><a href="#finance">体验情景测算 ↓</a></div><div class="cover-meta"><span>不改组织</span><span>不替换 ERP</span><span>范围与指标待验证</span><span>公开方案版</span></div>
+            </div>
+            <div class="cover-graphic" aria-label="从经营 BI 到人加 AI 等于 OPC 的路径图">
+              <div class="cover-axis" aria-hidden="true"></div>
+              <article class="cover-node one"><small>01 / 当前入口</small><strong>经营 BI</strong><p>先把事实、口径和管理动作看清。</p></article>
+              <article class="cover-node two"><small>02 / 探索方向</small><strong>全流程出版</strong><p>围绕一个产品连接内容与经营。</p></article>
+              <article class="cover-node three"><small>03 / 组织单元</small><strong>人 + AI</strong><p>让有判断力的人承担更多产品。</p></article>
+              <article class="cover-core"><small>阶段门之后</small><strong>人 + AI = OPC</strong><p>用真实产品结果决定是否复制。</p></article>
+              <div class="cover-legend"><span>BI <b>→</b> DATA</span><span>DATA <b>→</b> BOOK</span><span>BOOK <b>→</b> OPC</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="entry">
+        <span class="slide-number"><strong>02</strong> / 12</span>
+        <div class="slide-inner">
+          <div class="slide-head"><div><p class="slide-kicker">现实入口 / CURRENT ENTRY</p><h2 class="slide-title">当前先做好经营 BI，<br /><em>再向出版产品延伸。</em></h2></div><p class="slide-lede">经营 BI 不是最终产品，而是统一数据口径、理解管理动作、连接出版经营的第一步。</p></div>
+          <div class="entry-grid">
+            <article class="entry-statement"><small>先回答一个经营问题</small><strong>看见数据之后，<br />下一步做什么？</strong><p>拟面向经营、财务、销售和出版岗位验证：要看什么、为什么看、看完采取什么动作。</p></article>
+            <div class="entry-cards">
+              <article class="entry-card"><span>01 / 看什么</span><strong>经营事实</strong><p>按部门、产品、周期和成本看清当前状态。</p></article>
+              <article class="entry-card"><span>02 / 从哪里来</span><strong>既有系统</strong><p>ERP、财务、网销平台和公开市场数据。</p></article>
+              <article class="entry-card"><span>03 / 如何使用</span><strong>形成动作</strong><p>继续、调整、复制、停止或发起调研。</p></article>
+              <div class="entry-foot"><strong>经营 BI 建设与后续 AI 出版探索，是同一条数据与决策路径上的两个阶段。</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="ai-stages">
+        <span class="slide-number"><strong>03</strong> / 12</span>
+        <div class="slide-inner">
+          <div class="slide-head"><div><p class="slide-kicker">AI 发展阶段 / AI EVOLUTION</p><h2 class="slide-title">AI 不只改变效率，<br /><em>也在改变工作单元。</em></h2></div><p class="slide-lede">这是一种应用方向判断，不是组织调整要求。变化的核心是：人逐步从执行局部任务，转向定义结果、判断质量并承担责任。</p></div>
+          <div class="stage-tabs" role="tablist" aria-label="AI 发展阶段"><button class="stage-tab active" role="tab" aria-selected="true" aria-controls="stageDetail" data-stage="0"><small>AI 01</small><strong>Chatbot</strong><span>个人调用知识与方法</span></button><button class="stage-tab" role="tab" aria-selected="false" aria-controls="stageDetail" data-stage="1"><small>AI 02</small><strong>AI-enabled</strong><span>AI 进入既有岗位流程</span></button><button class="stage-tab" role="tab" aria-selected="false" aria-controls="stageDetail" data-stage="2"><small>AI 03</small><strong>AI-native</strong><span>围绕结果组织协同</span></button></div>
+          <div class="stage-detail" id="stageDetail" role="tabpanel" aria-live="polite"></div>
+          <div class="stage-note"><span>技术平权 / AI FLUENCY</span><strong>AI 降低知识与技术调用门槛，让有专业判断的人更容易调用广泛知识、方法和协作能力；但正式结果仍需人工判断、复核和负责。</strong></div>
+        </div>
+      </section>
+
+      <section class="slide" id="data-assets">
+        <span class="slide-number"><strong>04</strong> / 12</span>
+        <div class="slide-inner">
+          <div class="slide-head"><div><p class="slide-kicker">数据资产 / DATA ASSET</p><h2 class="slide-title">数据从记录开始，<br /><em>最终服务于经营判断。</em></h2></div><p class="slide-lede">平台不替换 ERP、财务、印制、发行、渠道和仓储系统，重点是统一口径、连接数据、保留追溯。</p></div>
+          <div class="data-line"><article class="data-step"><span>DATA 01</span><strong>散落记录</strong><p>稿件、成本、销售和反馈分布在不同岗位与系统。</p><b>看见局部</b></article><article class="data-step"><span>DATA 02</span><strong>集中汇总</strong><p>按产品、部门、周期和来源归集经营事实。</p><b>知道发生了什么</b></article><article class="data-step"><span>DATA 03</span><strong>结构化资产</strong><p>建立产品、阶段、成本、版本和风险的统一对象。</p><b>支持变化拆解</b></article><article class="data-step"><span>DATA 04</span><strong>经营闭环</strong><p>市场反馈回到选题、内容与下一轮资源决策。</p><b>知道下一步做什么</b></article></div>
+          <div class="source-strip"><article class="source-box"><span>数据来源</span><strong>ERP、财务、网销与公开市场</strong><p>网销平台数据按调研后的权限与口径逐步接入。</p></article><article class="source-box"><span>统一口径</span><strong>产品 ID · 阶段 · 成本 · 销售 · 反馈 · 风险</strong><p>保留来源、计算逻辑、版本和人工确认结果。</p></article></div>
+        </div>
+      </section>
+
+      <section class="slide" id="full-flow">
+        <span class="slide-number"><strong>05</strong> / 12</span>
+        <div class="slide-inner">
+          <div class="slide-head"><div><p class="slide-kicker">探索方向 / FULL-PROCESS PUBLISHING</p><h2 class="slide-title">不是做一个 BI 产品，<br /><em>而是连接出版全流程。</em></h2></div><p class="slide-lede">BI 是经营观察入口；真正要探索的是围绕一个出版产品，把内容生产、既有出版执行和市场验证连接起来。</p></div>
+          <div class="process-track"><article class="process-step"><span>01</span><strong>想法与调研</strong><p>需求、用户、竞品</p></article><article class="process-step"><span>02</span><strong>选题与策划</strong><p>定位、结构、目标</p></article><article class="process-step"><span>03</span><strong>内容生产</strong><p>人定方向，AI 协作</p></article><article class="process-step"><span>04</span><strong>审校与设计</strong><p>质量、版权、合规</p></article><article class="process-step"><span>05</span><strong>出版执行</strong><p>接入既有体系</p></article><article class="process-step"><span>06</span><strong>销售与反馈</strong><p>ERP + 电商数据</p></article><article class="process-step"><span>07</span><strong>经营复盘</strong><p>预估、实际、偏差</p></article><article class="process-step"><span>08</span><strong>下一轮决策</strong><p>继续、调整、复制</p></article></div>
+          <div class="process-note"><span>系统边界</span><strong>重点是内容与经营两层；印制、发行、渠道、仓储等继续由既有系统与部门执行。</strong></div>
+        </div>
+      </section>
+
+      <section class="slide" id="bookworld">
+        <span class="slide-number"><strong>06</strong> / 12</span>
+        <div class="slide-inner">
+          <div class="slide-head"><div><p class="slide-kicker">行业参照 / MARKET REFERENCE</p><h2 class="slide-title">查看公开产品入口，<br /><em>梳理能力与边界。</em></h2></div><p class="slide-lede">下方链接为公开行业产品入口。本页不对外部产品进行功能、效果或商业化评测；右侧是本方案拟探索的能力分组。</p></div>
+          <div class="reference-grid"><article class="reference-copy"><small>PUBLIC REFERENCE / BOOKWORLD</small><h3>书世界智能出版平台</h3><p>用于进一步了解行业产品形态。下列模块为个人方案规划，不代表已验证外部产品具备这些能力。</p><a class="button button-light" href="https://www.booooks.com/welcome" target="_blank" rel="noreferrer">打开公开页面 <span>↗</span></a><p class="reference-source">参考：<a href="https://www.goldmyeai.com/welcome/product" target="_blank" rel="noreferrer">产品展示</a> · <a href="https://www.goldmyeai.com/welcome/solution" target="_blank" rel="noreferrer">技术方案</a></p></article><div class="reference-modules"><article class="module"><small>01</small><strong>图书信息</strong></article><article class="module"><small>02</small><strong>选题策划</strong></article><article class="module"><small>03</small><strong>AI 编辑</strong></article><article class="module"><small>04</small><strong>智能校对</strong></article><article class="module"><small>05</small><strong>装帧设计</strong></article><article class="module"><small>06</small><strong>营销物料</strong></article></div></div>
+        </div>
+      </section>
+
+      <section class="slide" id="positioning">
+        <span class="slide-number"><strong>07</strong> / 12</span>
+        <div class="slide-inner">
+          <div class="slide-head"><div><p class="slide-kicker">差异定位 / POSITIONING</p><h2 class="slide-title">从 AI-enabled 参照，<br /><em>探索 AI-native 工作单元。</em></h2></div><p class="slide-lede">AI-native 不是标签，而是观察一个工作单元是否围绕产品结果运行，并由人保留判断、复核与责任。</p></div>
+          <div class="compare-grid"><article class="compare-card"><span>AI-ENABLED / 既有流程增强</span><h3>AI 进入岗位与流程</h3><div class="compare-list"><div class="compare-row"><b>起点</b><span>已有岗位和系统</span></div><div class="compare-row"><b>对象</b><span>单个任务或单个环节</span></div><div class="compare-row"><b>人的位置</b><span>使用 AI 完成任务</span></div><div class="compare-row"><b>观察结果</b><span>局部效率是否改善</span></div></div></article><article class="compare-card target"><span>AI-NATIVE / 结果导向单元</span><h3>围绕出版产品组织协同</h3><div class="compare-list"><div class="compare-row"><b>起点</b><span>产品结果与负责人</span></div><div class="compare-row"><b>对象</b><span>从想法到市场验证的闭环</span></div><div class="compare-row"><b>人的位置</b><span>定义目标、判断质量、负责结果</span></div><div class="compare-row"><b>观察结果</b><span>是否完成更多可验证产品</span></div></div></article></div>
+          <div class="judgment"><span>初步判断</span><strong>方案关注的问题是：能否将产品负责人、经营 BI、既有出版体系与 AI 连接成一个对结果负责的协作单元；需要通过试点验证。</strong></div>
+        </div>
+      </section>
+
+      <section class="slide" id="validation">
+        <span class="slide-number"><strong>08</strong> / 12</span>
+        <div class="slide-inner">
+          <div class="slide-head"><div><p class="slide-kicker">验证方式 / VALIDATION</p><h2 class="slide-title">先用一个真实产品，<br /><em>验证一条完整链路。</em></h2></div><p class="slide-lede">不改变公司架构，不替换既有系统。由少数人员围绕真实出版产品记录过程、结果与风险，再决定是否复制。</p></div>
+          <div class="pilot-top"><article class="pilot-stat"><span>验证单元</span><strong>1 个试点出版产品</strong><small>1 名结果负责人 + 少数协作岗位 + 既有业务体系</small></article><article class="pilot-stat"><span>观察周期</span><strong>90 天</strong><small>先采集基线，再对照实际过程、成本、质量与反馈</small></article><article class="pilot-stat"><span>阶段门</span><strong>继续 / 调整 / 停止</strong><small>按证据、责任人和预算边界评审</small></article></div>
+          <div class="pilot-steps"><article class="pilot-step"><span>01 / 0—15 天</span><strong>定责定口径</strong><p>确定产品、负责人、基线、预算和数据权限。</p></article><article class="pilot-step"><span>02 / 16—45 天</span><strong>定义闭环</strong><p>确定 AI 介入点、人工审核点和风险门槛。</p></article><article class="pilot-step"><span>03 / 46—75 天</span><strong>跑真实流程</strong><p>记录周期、返工、成本、质量和市场反馈。</p></article><article class="pilot-step"><span>04 / 76—90 天</span><strong>提交决策</strong><p>形成产品决策单，决定继续、调整或停止。</p></article></div>
+          <div class="pilot-note"><span>本次不作为承诺</span><strong>试点设想：只读接入、人工复核；平台建设和规模化效果尚未验证。</strong></div>
+        </div>
+      </section>
+
+      <section class="slide" id="decision">
+        <span class="slide-number"><strong>09</strong> / 12</span>
+        <div class="slide-inner">
+          <div class="slide-head"><div><p class="slide-kicker">投资决策 / PRODUCT DECISION</p><h2 class="slide-title">管理层最终要看的，<br /><em>是一张出版产品决策单。</em></h2></div><p class="slide-lede">按产品汇总投入、产出、经营贡献、阶段偏差和风险，决定继续投入、调整、复制或停止。</p></div>
+          <div class="decision-grid"><article class="decision-card highlight"><span>01 / 产品判断</span><strong>为谁做，解决什么需求</strong><small>选题依据、负责人、阶段目标</small></article><article class="decision-card"><span>02 / 预估投入</span><strong>全成本与周期</strong><small>内容、审校、设计、出版及营销</small></article><article class="decision-card"><span>03 / 预估产出</span><strong>经营贡献与市场验证</strong><small>不把单一渠道结果代替完整财务视角</small></article><article class="decision-card"><span>04 / 阶段实际</span><strong>预估—实际—偏差</strong><small>成本、周期、返工、销售和反馈</small></article><article class="decision-card"><span>05 / 风险状态</span><strong>质量、版权、合规、库存</strong><small>AI 幻觉与异常必须有人复核</small></article><article class="decision-card highlight"><span>06 / 阶段决策</span><strong>继续、调整、复制或停止</strong><small>达到门槛才扩大投入</small></article></div>
+          <div class="decision-bottom"><article class="formula"><span>经营比较框架</span><strong>单品经营贡献 ÷ 单品全成本</strong><p>收入归集、成本分摊和经营贡献定义，需要与财务和经营岗位调研后确认；未确认前只作比较框架。</p></article><article class="risk-gate"><span>试点待确认项</span><div class="gate-list"><b>牵头部门</b><b>结果负责人</b><b>真实产品</b><b>数据权限</b><b>预算上限</b><b>复盘日期</b></div></article></div>
+        </div>
+      </section>
+
+      <section class="slide" id="canvas">
+        <span class="slide-number"><strong>10</strong> / 12</span>
+        <div class="slide-inner">
+          <div class="slide-head"><div><p class="slide-kicker">商业模式画布 / BUSINESS MODEL CANVAS</p><h2 class="slide-title">把价值、能力与风险，<br /><em>放进同一个经营框架。</em></h2></div><p class="slide-lede">近期验证内部能力与出版产品，中期扩大产品贡献，远期再考虑出版即服务。三类收益分开核算。</p></div>
+          <div class="bmc-grid" aria-label="出版经营 AI 应用商业模式画布"><article class="bmc-card bmc-partners"><span>关键合作伙伴</span><strong>既有出版体系与数据提供方</strong><p>出版、印制、发行、渠道、仓储、财务、网销和技术岗位。</p></article><article class="bmc-card bmc-activities"><span>关键业务</span><strong>内容生产与经营复盘</strong><p>调研、选题、生产、审校、验证、决策。</p></article><article class="bmc-card bmc-resources"><span>核心资源</span><strong>人才、内容、规则与数据</strong><p>既有出版能力是执行基础，AI 负责连接和放大。</p></article><article class="bmc-card bmc-value"><span>价值主张</span><strong>让有判断力的人，完成更多出版产品</strong><p>以真实产品为单位，贯通想法、内容、出版执行、市场反馈和经营决策。</p><em>人 + AI = OPC</em></article><article class="bmc-card bmc-relationships"><span>客户关系</span><strong>产品负责人持续协同</strong><p>过程透明，阶段决策。</p></article><article class="bmc-card bmc-channels"><span>渠道通路</span><strong>既有出版与销售体系</strong><p>ERP、网销和市场反馈。</p></article><article class="bmc-card bmc-segments"><span>客户细分</span><strong>当前：内部产品负责人</strong><p>远期：外部作者、名师、机构与合作方。</p></article><article class="bmc-card bmc-costs"><span>成本结构</span><strong>人力、数据、模型、审核与合规</strong><p>按阶段控制投入，建立全成本口径。</p></article><article class="bmc-card bmc-revenue"><span>收入来源</span><strong>内部产品贡献 → 远期出版即服务</strong><p>服务化在内部验证后再讨论。</p></article></div>
+        </div>
+      </section>
+
+      <section class="slide" id="finance">
+        <span class="slide-number"><strong>11</strong> / 12</span>
+        <div class="slide-inner">
+          <div class="slide-head"><div><p class="slide-kicker">规划情景 / PLANNING SCENARIO</p><h2 class="slide-title">先把口径定清，<br /><em>再看模型值不值得投。</em></h2></div><p class="slide-lede">以下按三年规划情景演示，不等于预测、预算或已实现收益；本页采用虚构演示单位，不含企业预算。</p></div>
+          <div class="finance-layout"><div class="finance-controls"><div class="finance-head"><span>虚构参数 / 演示单位</span><div class="scenarios" role="group" aria-label="推演情景"><button type="button" data-scenario="conservative">保守</button><button type="button" class="active" data-scenario="base">基准</button><button type="button" data-scenario="growth">进取</button></div></div><div class="controls-grid"><div class="control"><label for="people">第 1 年新增产品数 <output id="peopleOut">—</output></label><input id="people" type="range" min="1" max="30" value="0" /></div><div class="control"><label for="months">产品池年增长率 <output id="monthsOut">—</output></label><input id="months" type="range" min="0" max="100" step="5" value="0" /></div><div class="control"><label for="baseCapacity">市场验证成功率 <output id="baseCapacityOut">—</output></label><input id="baseCapacity" type="range" min="20" max="80" step="5" value="0" /></div><div class="control"><label for="aiCapacity">成功单品经营贡献 <output id="aiCapacityOut">—</output></label><input id="aiCapacity" type="range" min="40" max="300" step="10" value="0" /></div><div class="control"><label for="success">单品直接投入 <output id="successOut">—</output></label><input id="success" type="range" min="5" max="80" value="0" /></div><div class="control"><label for="contribution">三年平台与试点投入 <output id="contributionOut">—</output></label><input id="contribution" type="range" min="100" max="1500" step="20" value="0" /></div><div class="control"><label for="pilotCost">第 1 年效率释放价值 <output id="pilotCostOut">—</output></label><input id="pilotCost" type="range" min="0" max="400" step="10" value="0" /></div><div class="control"><label for="serviceClients">第 3 年外部服务客户 <output id="serviceClientsOut">—</output></label><input id="serviceClients" type="range" min="0" max="30" value="0" /></div><div class="control"><label for="serviceFee">单客户年度服务收入 <output id="serviceFeeOut">—</output></label><input id="serviceFee" type="range" min="50" max="400" step="10" value="0" /></div><div class="control"><label for="serviceCost">服务成本率 <output id="serviceCostOut">—</output></label><input id="serviceCost" type="range" min="20" max="80" step="5" value="0" /></div></div></div><div class="finance-results"><span>推演结果</span><div class="result-head"><strong id="scenarioLabel">—</strong><span id="breakEvenLabel">参数更新后计算</span></div><div class="result-grid"><article class="result-card"><span>三年综合经济价值</span><strong id="capacityResult">—</strong><small>新品净贡献 + 效率释放 + 远期服务</small></article><article class="result-card"><span>三年经营净贡献</span><strong id="productResult">—</strong><small>新品与服务 − 单品及平台投入</small></article><article class="result-card"><span>第 3 年新增价值</span><strong id="netResult">—</strong><small>产品、效率与服务的阶段合计</small></article><article class="result-card future"><span>远期出版即服务</span><strong id="serviceResult">—</strong><small>第 3 年外部客户服务贡献</small></article></div><div class="finance-bars"><div class="finance-bar"><span>三年投入</span><i><b id="costBar"></b></i><strong id="costText">—</strong></div><div class="finance-bar"><span>新品贡献</span><i><b id="productBar"></b></i><strong id="productText">—</strong></div><div class="finance-bar"><span>综合价值</span><i><b id="serviceBar"></b></i><strong id="serviceText">—</strong></div></div><p class="finance-formula"><b>新品贡献</b> = 年度新增产品数 × 市场验证成功率 × 成功单品经营贡献；<b>综合经济价值</b> = 新品贡献 − 单品与平台投入 + 效率释放 + 出版即服务。</p></div></div><p class="assumption">假设演示，不是预算或收益承诺；正式投资决策还需补预算科目、现金流时点、历史基线和敏感性分析。</p>
+        </div>
+      </section>
+
+      <section class="slide final-slide" id="support">
+        <span class="slide-number"><strong>12</strong> / 12</span>
+        <div class="slide-inner"><div><p class="slide-kicker">最终判断 / NEXT STEP</p><h2 class="slide-title">以可控试点验证，<br /><em>再判断产品价值。</em></h2><p class="slide-lede">建议批准 90 天、1 个试点产品、1 名结果负责人和首阶段预算上限。三年平台建设与外部商业化，等真实证据后再议。</p></div><article class="final-core"><small>验证方案</small><strong>90 天 · 1 产品</strong><p>以经营 BI 为入口，跑通可追溯的内容—出版—经营闭环；用真实决策单和阶段门决定下一步。</p><div class="support-box"><span>后续验证准备</span><div class="support-list"><b data-no="01">指定牵头部门与结果负责人。</b><b data-no="02">确定首个真实出版产品、只读数据权限和协作岗位。</b><b data-no="03">核定首阶段预算上限，并确定 90 天复盘日期。</b><b class="no-go" data-no="×">完整平台、外部商业化与业务写入能力尚未实现。</b></div></div></article></div>
+      </section>
+    </main>
+
+    <script>
+      const deck = document.querySelector('#deck');
+      const slides = [...document.querySelectorAll('.slide')];
+      const navButtons = [...document.querySelectorAll('.slide-nav button')];
+      const progress = document.querySelector('#progressNumber');
+      const stageData = [
+        { name: 'Chatbot', desc: '个人把 AI 当作知识与方法入口，获得检索、解释、整理和初稿能力。组织工作单元基本不变。', ai: ['AI 能力', '个人助手', '回答问题、形成初稿、辅助比较'], human: ['人的责任', '提出问题并核验', '识别幻觉，不把 AI 输出当作正式结论'], org: ['组织变化', '个人效率改善', '岗位边界和结果责任基本不变'] },
+        { name: 'AI-enabled', desc: 'AI 进入既有岗位和业务流程，承接连续任务；人负责目标、专业判断、关键节点和最终确认。', ai: ['AI 能力', '流程协作者', '调研、内容、校对、数据分析协同'], human: ['人的责任', '关键节点人审', '明确哪些结果必须复核、签字和留痕'], org: ['组织变化', '既有流程增强', '分工方式改善，但流程仍是主要骨架'] },
+        { name: 'AI-native', desc: '工作单元从一个可衡量的结果出发，AI 调用知识、数据、规则和工具推进任务；人负责方向、质量、风险与结果。', ai: ['AI 能力', '端到端协作者', '拆解、取数、执行、验证、迭代'], human: ['人的责任', '定义结果并负责', '处理例外，承担产品、质量和经营责任'], org: ['组织变化', '结果导向单元', '从工序接力走向人 + AI = OPC'] }
+      ];
+      const stageTabs = [...document.querySelectorAll('.stage-tab')];
+      const stageDetail = document.querySelector('#stageDetail');
+      function renderStage(index) {
+        const stage = stageData[index];
+        stageDetail.innerHTML = `<div><span>CURRENT AI STAGE / 0${index + 1}</span><h3>${stage.name}</h3><p>${stage.desc}</p></div><div><span>${stage.ai[0]}</span><strong>${stage.ai[1]}</strong><small>${stage.ai[2]}</small></div><div><span>${stage.human[0]}</span><strong>${stage.human[1]}</strong><small>${stage.human[2]}</small></div><div><span>${stage.org[0]}</span><strong>${stage.org[1]}</strong><small>${stage.org[2]}</small></div>`;
+        stageTabs.forEach((tab, i) => { const active = i === index; tab.classList.toggle('active', active); tab.setAttribute('aria-selected', active ? 'true' : 'false'); });
+      }
+      stageTabs.forEach((tab, index) => tab.addEventListener('click', () => renderStage(index)));
+      renderStage(0);
+
+      const scenarioData = {"conservative": {"people": 3, "months": 10, "baseCapacity": 25, "aiCapacity": 24, "success": 9, "contribution": 120, "pilotCost": 0, "serviceClients": 0, "serviceFee": 16, "serviceCost": 70}, "base": {"people": 6, "months": 25, "baseCapacity": 50, "aiCapacity": 36, "success": 10, "contribution": 100, "pilotCost": 12, "serviceClients": 2, "serviceFee": 20, "serviceCost": 60}, "growth": {"people": 9, "months": 35, "baseCapacity": 65, "aiCapacity": 48, "success": 12, "contribution": 160, "pilotCost": 20, "serviceClients": 4, "serviceFee": 24, "serviceCost": 50}};
+      const scenarioNames = { conservative: '保守', base: '基准', growth: '进取' };
+      const fields = ['people', 'months', 'baseCapacity', 'aiCapacity', 'success', 'contribution', 'pilotCost', 'serviceClients', 'serviceFee', 'serviceCost'];
+      const financeMeta = {
+        people: { label: '第1年新增产品数', min: 1, max: 30, step: 1, unit: ' 个' },
+        months: { label: '产品池年增长率', min: 0, max: 100, step: 5, unit: '%' },
+        baseCapacity: { label: '市场验证成功率', min: 0, max: 100, step: 5, unit: '%' },
+        aiCapacity: { label: '成功单品经营贡献', min: 0, max: 100, step: 1, unit: ' 单位' },
+        success: { label: '单品直接投入', min: 5, max: 80, step: 1, unit: ' 单位' },
+        contribution: { label: '三年平台与试点投入', min: 0, max: 500, step: 10, unit: ' 单位' },
+        pilotCost: { label: '第1年效率释放价值', min: 0, max: 100, step: 1, unit: ' 单位' },
+        serviceClients: { label: '第3年外部服务客户', min: 0, max: 30, step: 1, unit: ' 家' },
+        serviceFee: { label: '单客户年度服务收入', min: 0, max: 100, step: 1, unit: ' 单位' },
+        serviceCost: { label: '服务成本率', min: 0, max: 100, step: 5, unit: '%' }
+      };
+      const units = Object.fromEntries(fields.map(id => [id, financeMeta[id].unit]));
+      const read = id => Number(document.querySelector(`#${id}`).value);
+      const nice = value => Number.isInteger(value) ? String(value) : value.toFixed(1);
+      const money = value => `${nice(value)} 单位`;
+      const tableMarkup = `<div class="finance-table" aria-label="三年收益结构"><div class="finance-table-row header"><span>收益与投入</span><b>第1年</b><b>第2年</b><b>第3年</b></div><div class="finance-table-row"><span>新增产品池（期望）</span><b id="year1Products">—</b><b id="year2Products">—</b><b id="year3Products">—</b></div><div class="finance-table-row"><span>新品经营贡献</span><b id="year1ProductValue">—</b><b id="year2ProductValue">—</b><b id="year3ProductValue">—</b></div><div class="finance-table-row"><span>单品与平台投入</span><b id="year1Investment">—</b><b id="year2Investment">—</b><b id="year3Investment">—</b></div><div class="finance-table-row"><span>效率释放价值</span><b id="year1Efficiency">—</b><b id="year2Efficiency">—</b><b id="year3Efficiency">—</b></div><div class="finance-table-row"><span>出版即服务贡献</span><b id="year1Service">—</b><b id="year2Service">—</b><b id="year3Service">—</b></div><div class="finance-table-row total"><span>阶段综合经济价值</span><b id="year1Total">—</b><b id="year2Total">—</b><b id="year3Total">—</b></div></div>`;
+      document.querySelector('#finance .finance-bars').insertAdjacentHTML('beforebegin', tableMarkup);
+      const resultCopy = [['三年综合经济价值', '新品净贡献 + 效率释放 + 远期服务'], ['三年经营净贡献', '新品与服务 − 单品及平台投入'], ['第3年新增价值', '产品、效率与服务的阶段合计'], ['远期出版即服务', '第3年外部客户服务贡献']];
+      document.querySelector('#finance .finance-head > span').textContent = '虚构参数 / 演示单位';
+      document.querySelector('#scenarioLabel').setAttribute('aria-live', 'polite');
+      document.querySelector('#breakEvenLabel').setAttribute('aria-live', 'polite');
+      document.querySelectorAll('#finance .result-card').forEach((card, index) => { card.querySelector('span').textContent = resultCopy[index][0]; card.querySelector('small').textContent = resultCopy[index][1]; });
+      document.querySelectorAll('#finance .finance-bar > span')[0].textContent = '三年投入';
+      document.querySelectorAll('#finance .finance-bar > span')[1].textContent = '新品贡献';
+      document.querySelectorAll('#finance .finance-bar > span')[2].textContent = '综合价值';
+      document.querySelector('#finance .slide-lede').textContent = '按三年产品组合推演，分别观察新品经营贡献、效率释放价值和远期出版即服务。参数为独立设定的公开演示假设，不代表企业预算、真实经营数据或收益承诺。';
+      document.querySelector('#finance .finance-formula').innerHTML = '<b>新品贡献</b> = 年度新增产品数 × 市场验证成功率 × 成功单品经营贡献；<b>综合经济价值</b> = 新品贡献 − 单品与平台投入 + 效率释放 + 出版即服务。';
+      document.querySelector('#finance .assumption').textContent = '假设演示，不是预算或收益承诺。正式投资决策还需补预算科目、现金流时点、历史基线和敏感性分析；效率价值不得与新品贡献重复计入。';
+      fields.forEach(id => { const input = document.querySelector(`#${id}`); const meta = financeMeta[id]; input.min = meta.min; input.max = meta.max; input.step = meta.step; input.closest('.control').querySelector('label').childNodes[0].textContent = `${meta.label} `; });
+      fields.forEach(id => { document.querySelector(`#${id}`).value = scenarioData.base[id]; });
+      document.querySelector('#scenarioLabel').textContent = '基准 · 假设演示';
+      function updateFinance() {
+        const values = Object.fromEntries(fields.map(id => [id, read(id)]));
+        const productGrowth = values.months / 100;
+        const successRate = values.baseCapacity / 100;
+        const products = [values.people, values.people * (1 + productGrowth), values.people * (1 + productGrowth) ** 2];
+        const productValues = products.map(count => count * successRate * values.aiCapacity);
+        const directCosts = products.map(count => count * values.success);
+        const platformCosts = [values.contribution * .55, values.contribution * .30, values.contribution * .15];
+        const efficiencyValues = [values.pilotCost, values.pilotCost * 1.5, values.pilotCost * 2];
+        const serviceValues = [0, 0, values.serviceClients * values.serviceFee * (1 - values.serviceCost / 100)];
+        const operatingValues = productValues.map((value, index) => value - directCosts[index] - platformCosts[index] + serviceValues[index]);
+        const totalValues = operatingValues.map((value, index) => value + efficiencyValues[index]);
+        const sum = values => values.reduce((total, value) => total + value, 0);
+        const productTotal = sum(productValues);
+        const investmentTotal = sum(directCosts) + sum(platformCosts);
+        const serviceTotal = sum(serviceValues);
+        const operatingTotal = sum(operatingValues);
+        const totalValue = sum(totalValues);
+        fields.forEach(id => { document.querySelector(`#${id}Out`).textContent = `${nice(values[id])}${units[id]}`; });
+        document.querySelector('#capacityResult').textContent = money(totalValue);
+        document.querySelector('#productResult').textContent = money(operatingTotal);
+        document.querySelector('#netResult').textContent = money(totalValues[2]);
+        document.querySelector('#serviceResult').textContent = money(serviceTotal);
+        document.querySelector('#costText').textContent = money(investmentTotal);
+        document.querySelector('#productText').textContent = money(productTotal);
+        document.querySelector('#serviceText').textContent = money(totalValue);
+        const max = Math.max(investmentTotal, productTotal, totalValue, 1);
+        document.querySelector('#costBar').style.width = `${investmentTotal / max * 100}%`;
+        document.querySelector('#productBar').style.width = `${productTotal / max * 100}%`;
+        document.querySelector('#serviceBar').style.width = `${Math.max(0,totalValue) / max * 100}%`;
+      const expectedNetPerProduct = successRate * values.aiCapacity - values.success;
+      document.querySelector('#breakEvenLabel').textContent = expectedNetPerProduct > 0 ? `仅回收平台投入，至少 ${Math.ceil(values.contribution / expectedNetPerProduct)} 个计划产品（不含效率/服务）` : '单品期望净贡献非正，无法通过增加产品数量回收平台投入';
+        products.forEach((value, index) => { const year = index + 1; document.querySelector(`#year${year}Products`).textContent = `${nice(value)} 个`; document.querySelector(`#year${year}ProductValue`).textContent = money(productValues[index]); document.querySelector(`#year${year}Investment`).textContent = money(directCosts[index] + platformCosts[index]); document.querySelector(`#year${year}Efficiency`).textContent = money(efficiencyValues[index]); document.querySelector(`#year${year}Service`).textContent = money(serviceValues[index]); document.querySelector(`#year${year}Total`).textContent = money(totalValues[index]); });
+      }
+      fields.forEach(id => document.querySelector(`#${id}`).addEventListener('input', () => { document.querySelectorAll('.scenarios button').forEach(button => button.classList.remove('active')); document.querySelector('#scenarioLabel').textContent = '自定义 · 假设演示'; updateFinance(); }));
+      document.querySelectorAll('.scenarios button').forEach(button => button.addEventListener('click', () => { const values = scenarioData[button.dataset.scenario]; fields.forEach(id => { document.querySelector(`#${id}`).value = values[id]; }); document.querySelectorAll('.scenarios button').forEach(item => item.classList.toggle('active', item === button)); document.querySelector('#scenarioLabel').textContent = `${scenarioNames[button.dataset.scenario]} · 假设演示`; updateFinance(); }));
+      updateFinance();
+
+      const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (!entry.isIntersecting) return; const index = slides.indexOf(entry.target); navButtons.forEach((button, i) => { const active = i === index; button.classList.toggle('active', active); button.setAttribute('aria-current', active ? 'page' : 'false'); }); progress.textContent = String(index + 1).padStart(2, '0'); }), { root: window.matchMedia('(max-width: 820px)').matches ? null : deck, threshold: .55 });
+      slides.forEach(slide => observer.observe(slide));
+      navButtons.forEach(button => button.addEventListener('click', () => slides[Number(button.dataset.slide)].scrollIntoView({ behavior: 'smooth' })));
+      document.addEventListener('keydown', event => { if (['INPUT', 'BUTTON'].includes(document.activeElement?.tagName)) return; const current = navButtons.findIndex(button => button.classList.contains('active')); if (['ArrowDown', 'PageDown', ' '].includes(event.key)) { event.preventDefault(); slides[Math.min(slides.length - 1, current + 1)].scrollIntoView({ behavior: 'smooth' }); } if (['ArrowUp', 'PageUp'].includes(event.key)) { event.preventDefault(); slides[Math.max(0, current - 1)].scrollIntoView({ behavior: 'smooth' }); } });
+    </script>
+  </body>
+</html>
